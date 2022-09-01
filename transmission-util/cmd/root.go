@@ -35,5 +35,5 @@ var address string
 var tr *transmission.Transmission
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&address, "base-url", "http://127.0.0.1", "URL to transmission server")
+	rootCmd.PersistentFlags().StringVar(&address, "base-url", "https://transmission.bobcob7.com", "URL to transmission server")
 }

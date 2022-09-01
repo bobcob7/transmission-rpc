@@ -9,11 +9,14 @@ import (
 
 var torrentFields []string
 
-func init() {
-	v := reflect.ValueOf(Torrent{})
-	torrentFields = make([]string, 0, v.NumField())
+func getJSONTags(v reflect.Type) []string {
+	fields := make([]string, 0, v.NumField())
 	for i := 0; i < v.NumField(); i++ {
-		jsonTag, ok := v.Type().Field(i).Tag.Lookup("json")
+		f := v.Field(i)
+		if f.Type.Kind() == reflect.Struct && f.Anonymous {
+			fields = append(fields, getJSONTags(f.Type)...)
+		}
+		jsonTag, ok := f.Tag.Lookup("json")
 		if !ok {
 			continue
 		}
@@ -21,8 +24,14 @@ func init() {
 		if jsonTagElements[0] == "" {
 			continue
 		}
-		torrentFields = append(torrentFields, jsonTagElements[0])
+		fields = append(fields, jsonTagElements[0])
 	}
+	return fields
+}
+
+func init() {
+	v := reflect.ValueOf(Torrent{})
+	torrentFields = getJSONTags(v.Type())
 }
 
 type TorrentFile struct {
@@ -176,11 +185,9 @@ type TorrentStatistics struct {
 	  [0...tr_torrentTotalSize()] */
 	SizeWhenDone uint64 `json:"sizeWhenDone"`
 	/** When the torrent was last started. */
-	StartDate uint64 `json:"startDate"`
-	// trackers int `json:"trackers"`
-	TrackerList int `json:"trackerList"` // one per line
-	// trackerStats   int    `json:"trackerStats"`
-	TotalSize int `json:"totalSize"`
+	StartDate   uint64 `json:"startDate"`
+	TrackerList int    `json:"trackerList"` // one per line
+	TotalSize   int    `json:"totalSize"`
 	/** Byte count of all data you've ever uploaded for this torrent. */
 	UploadedEver uint64 `json:"uploadedEver"`
 	// wanted     int     `json:"wanted"`
