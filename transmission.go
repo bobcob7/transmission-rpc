@@ -14,6 +14,7 @@ type Client struct {
 	sessionID   string
 	DownloadDir string
 	cli         *http.Client
+	sessionInfo map[string]interface{}
 }
 
 func New(ctx context.Context, rootURL string) (*Client, error) {
@@ -22,10 +23,16 @@ func New(ctx context.Context, rootURL string) (*Client, error) {
 		cli: &http.Client{
 			Timeout: time.Second * 10,
 		},
-		DownloadDir: "/tmp/",
 	}
-	if err := tr.getSessionID(ctx); err != nil {
+	err := tr.getSessionID(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("failed getting session: %w", err)
+	}
+	if tr.sessionInfo, err = tr.GetSession(ctx); err != nil {
+		return nil, fmt.Errorf("failed getting session info: %w", err)
+	}
+	if downloadDir, ok := tr.sessionInfo["download-dir"]; ok {
+		tr.DownloadDir = downloadDir.(string)
 	}
 	return tr, nil
 }

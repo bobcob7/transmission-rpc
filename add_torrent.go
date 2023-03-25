@@ -55,11 +55,11 @@ func (t *Client) AddMagnetLink(ctx context.Context, link string, opts ...AddMagn
 	if err := t.callRPC(ctx, "torrent-add", &req, &response); err != nil {
 		return 0, err
 	}
-	if response.Result != "success" {
-		return 0, fmt.Errorf("failed to add magnet link: %s", response.Result)
+	if response.Result == "success" {
+		return response.Arguments.TorrentAdded.ID, nil
 	}
-	if response.Arguments.TorrentDuplicate.ID != 0 {
+	if response.Result == "duplicate torrent" {
 		return response.Arguments.TorrentDuplicate.ID, nil
 	}
-	return response.Arguments.TorrentAdded.ID, nil
+	return 0, fmt.Errorf("failed to add magnet link: %s", response.Result)
 }

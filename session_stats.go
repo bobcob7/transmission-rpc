@@ -31,7 +31,7 @@ type SessionStatistics struct {
 	SecondsActive   int     `json:"secondsActive"`
 }
 
-func (t *Client) GetSession(ctx context.Context) (*Session, error) {
+func (t *Client) GetSessionStats(ctx context.Context) (*Session, error) {
 	var response sessionStatsResponse
 	if err := t.callRPC(ctx, "session-stats", nil, &response); err != nil {
 		return nil, err
