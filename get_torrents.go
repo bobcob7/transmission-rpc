@@ -264,7 +264,7 @@ type listTorrentsResponseArgs struct {
 	Torrents []Torrent `json:"torrents"`
 }
 
-func (t *Transmission) GetTorrents(ctx context.Context, ids ...int) ([]Torrent, error) {
+func (t *Client) GetTorrents(ctx context.Context, ids ...int) ([]Torrent, error) {
 	var response listTorrentsResponse
 	req := listTorrentsRequestArgs{
 		Fields: torrentFields,

@@ -9,19 +9,20 @@ import (
 	"time"
 )
 
-type Transmission struct {
+type Client struct {
 	rootURL     string
 	sessionID   string
-	downloadDir string
+	DownloadDir string
 	cli         *http.Client
 }
 
-func New(ctx context.Context, rootURL string) (*Transmission, error) {
-	tr := &Transmission{
+func New(ctx context.Context, rootURL string) (*Client, error) {
+	tr := &Client{
 		rootURL: rootURL,
 		cli: &http.Client{
 			Timeout: time.Second * 10,
 		},
+		DownloadDir: "/tmp/",
 	}
 	if err := tr.getSessionID(ctx); err != nil {
 		return nil, fmt.Errorf("failed getting session: %w", err)
@@ -29,7 +30,7 @@ func New(ctx context.Context, rootURL string) (*Transmission, error) {
 	return tr, nil
 }
 
-func (t *Transmission) getSessionID(ctx context.Context) error {
+func (t *Client) getSessionID(ctx context.Context) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, t.rootURL+"/transmission/rpc", nil)
 	if err != nil {
 		return err
@@ -52,7 +53,7 @@ type genericRequest struct {
 	Tag       string      `json:"tag"`
 }
 
-func (t *Transmission) callRPC(ctx context.Context, requestMethod string, requestArguments, response interface{}) error {
+func (t *Client) callRPC(ctx context.Context, requestMethod string, requestArguments, response interface{}) error {
 	var resp *http.Response
 	if t.sessionID == "" {
 		if err := t.getSessionID(ctx); err != nil {
@@ -65,9 +66,12 @@ func (t *Transmission) callRPC(ctx context.Context, requestMethod string, reques
 		Arguments: requestArguments,
 	}
 	err := json.NewEncoder(buffer).Encode(request)
+	if err != nil {
+		return fmt.Errorf("failed to encode request: %w", err)
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.rootURL+"/transmission/rpc", buffer)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create new http request: %w", err)
 	}
 	for i := 0; i < 2; i++ {
 		req.Header.Add("X-Transmission-Session-Id", t.sessionID)

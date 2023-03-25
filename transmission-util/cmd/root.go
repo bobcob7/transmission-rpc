@@ -32,7 +32,7 @@ func Execute() {
 }
 
 var address string
-var tr *transmission.Transmission
+var tr *transmission.Client
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&address, "base-url", "https://transmission.bobcob7.com", "URL to transmission server")
