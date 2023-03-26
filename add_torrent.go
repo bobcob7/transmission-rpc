@@ -32,25 +32,28 @@ type addTransmissionResponseArgs struct {
 	Tag string `json:"tag"`
 }
 
-type AddMagnetLinkOptions func(*addTransmissionRequestArgs)
+type AddMagnetLinkOption func(*addTransmissionRequestArgs)
 
-func DownloadDirOption(absolutePath string) AddMagnetLinkOptions {
+func DownloadDirOption(absolutePath string) AddMagnetLinkOption {
 	return func(req *addTransmissionRequestArgs) {
 		req.DownloadDir = absolutePath
 	}
 }
 
-func DownloadSubDirOption(subDir string) AddMagnetLinkOptions {
+func DownloadSubDirOption(subDir string) AddMagnetLinkOption {
 	return func(req *addTransmissionRequestArgs) {
 		req.DownloadDir = path.Join(req.DownloadDir, subDir)
 	}
 }
 
-func (t *Client) AddMagnetLink(ctx context.Context, link string, opts ...AddMagnetLinkOptions) (int, error) {
+func (t *Client) AddMagnetLink(ctx context.Context, link string, opts ...AddMagnetLinkOption) (int, error) {
 	var response addTransmissionResponse
 	req := addTransmissionRequestArgs{
 		Filename:    link,
 		DownloadDir: t.DownloadDir,
+	}
+	for _, opt := range opts {
+		opt(&req)
 	}
 	if err := t.callRPC(ctx, "torrent-add", &req, &response); err != nil {
 		return 0, err
