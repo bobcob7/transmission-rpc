@@ -186,7 +186,7 @@ type TorrentStatistics struct {
 	SizeWhenDone uint64 `json:"sizeWhenDone"`
 	/** When the torrent was last started. */
 	StartDate   uint64 `json:"startDate"`
-	TrackerList int    `json:"trackerList"` // one per line
+	TrackerList string `json:"trackerList"` // one per line
 	TotalSize   int    `json:"totalSize"`
 	/** Byte count of all data you've ever uploaded for this torrent. */
 	UploadedEver uint64 `json:"uploadedEver"`
@@ -199,7 +199,7 @@ type TorrentStatistics struct {
 // https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md#33-torrent-accessor-torrent-get
 type Torrent struct {
 	TorrentStatistics
-	Availability        int                `json:"availability"` // Should be an array of ints, but is actually just a single int
+	Availability        []int              `json:"availability"` // Should be an array of ints, but is actually just a single int
 	BandwidthPriority   int                `json:"bandwidthPriority"`
 	Comment             string             `json:"comment"`
 	Creator             string             `json:"creator"`
@@ -212,7 +212,7 @@ type Torrent struct {
 	FileCount           int                `json:"file-count"`
 	Files               []TorrentFile      `json:"files"`
 	FileStats           []TorrentFileStats `json:"fileStats"`
-	Group               int                `json:"group"`
+	Group               string             `json:"group"`
 	HashString          string             `json:"hashString"`
 	HonorsSessionLimits bool               `json:"honorsSessionLimits"`
 	ID                  int                `json:"id"`
@@ -228,7 +228,7 @@ type Torrent struct {
 	PieceCount          int                `json:"pieceCount"`
 	PieceSize           int                `json:"pieceSize"`
 	Priorities          []int              `json:"priorities"`
-	PrimaryMIMEType     int                `json:"primary-mime-type"`
+	PrimaryMIMEType     string             `json:"primary-mime-type"`
 	RateDownload        int                `json:"rateDownload"`
 	RateUpload          int                `json:"rateUpload"`
 	SeedIdleLimit       int                `json:"seedIdleLimit"`
